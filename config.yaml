@@ -1,0 +1,6 @@
+lang: en
+max_side_len: 4000
+min_confidence: 0.5
+# output_root_folder: /mnt/e/pcc_shared/manga_narrator_runs/outputs
+input_root_folder: /mnt/e/pcc_shared/manga_narrator_runs/inputs
+output_root_folder: /mnt/e/pcc_shared/manga_narrator_runs/outputs
