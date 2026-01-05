@@ -8,7 +8,7 @@ from datetime import datetime
 import uuid
 from typing import Optional, Any, Mapping
 import traceback
-from models.domain import *
+import models.domain as d
 
 # ---- Config ----
 CONFIG_PATH = 'config.yaml'
@@ -189,7 +189,7 @@ def augment_json_with_paddle(
             )
 
         with open(ocr_json_path_, "r", encoding="utf-8") as f:
-            ocr_data = OCRRunResponse.model_validate(json.load(f))
+            ocr_data = d.OCRRunResponse.model_validate(json.load(f))
 
         # --- validate ---
         if not ocr_data or not ocr_data.imageResults:
@@ -199,15 +199,15 @@ def augment_json_with_paddle(
             )
 
         # --- process each entry ---
-        augmented_images: list[PaddleOCRImage] = []
+        augmented_images: list[d.PaddleOCRImage] = []
         for ocrimg in ocr_data.imageResults:
-            paddle_img = PaddleOCRImage.model_validate(ocrimg.model_dump())
+            paddle_img = d.PaddleOCRImage.model_validate(ocrimg.model_dump())
             if not paddle_img.inferImageRes:
                 return JSONResponse(
                 status_code=400,
                 content={"error": f"Invalid JSON file, Invalid image result: {ocr_json_path_}"}
             )
-            img_path = Path(MEDIA_ROOT) / paddle_img.inferImageRes.image_ref.namespace / paddle_img.inferImageRes.image_ref.path
+            img_path = paddle_img.inferImageRes.image_ref.resolve(Path(MEDIA_ROOT))
 
             if not img_path.exists():
                 paddle_img.paddleocr_result = {"error": f"Image not found at {img_path}"}
@@ -276,7 +276,7 @@ def augment_json_with_paddle(
 
                 augmented_images.append(paddle_img)
 
-        augmented_ocrrun = PaddleAugmentedOCRRunResponse(
+        augmented_ocrrun = d.PaddleAugmentedOCRRunResponse(
             run_id=ocr_data.run_id,
             imageResults=augmented_images,
             error=ocr_data.error
