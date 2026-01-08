@@ -213,6 +213,8 @@ def augment_json_with_paddle(
                 paddle_img.paddleocr_result = {"error": f"Image not found at {img_path}"}
                 continue
 
+            print(f"🌿 Validation succeeded for img path, starting img processing: {str(img_path.stem)}")
+
             if use_process_and_save:
                 # Reuse full pipeline (debug mode)
                 results = process_and_save(
@@ -226,16 +228,10 @@ def augment_json_with_paddle(
 
                 # right after: result = ocr.predict(input=str(img_path))
                 print("\n🔍 DEBUG: Raw result type ->", type(result))
+                print(f"Processing done for img: {str(img_path.stem)}")
                 if isinstance(result, list):
                     print("  Length of result:", len(result))
-                    if len(result) > 0:
-                        print("  First element type:", type(result[0]))
-                        # If it’s an object:
-                        if hasattr(result[0], "__dict__"):
-                            print("  First element keys:", list(result[0].__dict__.keys()))
-                        # If it’s a tuple/list:
-                        if isinstance(result[0], (list, tuple)):
-                            print("  First element sample (truncated):", json.dumps(result[0], indent=2)[:500])
+                
                 else:
                     print("Result is NOT a list:", result)
 
@@ -276,16 +272,22 @@ def augment_json_with_paddle(
 
                 augmented_images.append(paddle_img)
 
+        out_path = Path(ocr_json_path_).with_name(
+            Path(ocr_json_path_).stem + "_with_paddle.json"
+        )
+        json_rel_path = out_path.relative_to(Path(MEDIA_ROOT)/d.MediaNamespace.OUTPUTS.value)
+
         augmented_ocrrun = d.PaddleAugmentedOCRRunResponse(
             run_id=ocr_data.run_id,
+            ocr_json_file=d.MediaRef(
+                namespace=d.MediaNamespace.OUTPUTS,
+                path=str(json_rel_path)
+            ),
             imageResults=augmented_images,
             error=ocr_data.error
         )
 
         # --- save augmented file ---
-        out_path = Path(ocr_json_path_).with_name(
-            Path(ocr_json_path_).stem + "_with_paddle.json"
-        )
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(augmented_ocrrun.model_dump(), f, indent=2, ensure_ascii=False)
 
