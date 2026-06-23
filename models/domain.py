@@ -76,7 +76,11 @@ class PaddleResizeInfo(BaseModel):
 
 class OCRImage(BaseModel):
     image_id: str
+<<<<<<< HEAD
     has_text: bool
+=======
+    has_text: bool = False
+>>>>>>> 51670e905793f13790389eb5f25b556febdb3af1
     inferImageRes: Optional[InferImageResponse] = None
     parsedDialogueLines: Optional[list[DialogueLineResponse]] = None
     paddleResizeInfo: Optional[PaddleResizeInfo] = None
