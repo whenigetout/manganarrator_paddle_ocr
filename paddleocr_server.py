@@ -241,24 +241,7 @@ def augment_json_with_paddle(
                 if result and len(result) > 0:
                     ocr_res = result[0]  # OCRResult object (like in process_and_save)
                     rec_texts, rec_polys, rec_boxes = extract_paddle_fields(ocr_res)
-                    # if type(ocr_res) == dict:
 
-                    #     if "rec_texts" in ocr_res:
-                    #         rec_texts = ocr_res["rec_texts"]
-                    #     else:
-                    #         rec_texts = []
-
-                    #     if "rec_polys" in ocr_res:
-                    #         rec_polys = ocr_res["rec_polys"]
-                    #     else:
-                    #         rec_polys = []
-
-                    #     if "rec_boxes" in ocr_res:
-                    #         rec_boxes = ocr_res["rec_boxes"]
-                    #     else:
-                    #         rec_boxes = []
-
-                    # convert ndarray -> list
                     if rec_polys is not None:
                         rec_polys = [p.tolist() if hasattr(p, "tolist") else p for p in rec_polys]
                     if rec_boxes is not None:
