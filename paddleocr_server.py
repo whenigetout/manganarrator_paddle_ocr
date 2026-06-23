@@ -156,6 +156,8 @@ def augment_json_with_paddle(
         # Input folder
         if not input_img_root_folder or input_img_root_folder.strip().lower() == "string":
             img_root_folder = config.get("input_root_folder")
+        else:
+            img_root_folder = input_img_root_folder
 
         if img_root_folder is None:
             return JSONResponse(
@@ -168,6 +170,8 @@ def augment_json_with_paddle(
         # Output folder
         if not output_json_root_folder or output_json_root_folder.strip().lower() == "string":
             ocr_json_root_folder = config.get("output_root_folder")
+        else:
+            ocr_json_root_folder = output_json_root_folder
 
         if ocr_json_root_folder is None:
             return JSONResponse(
@@ -211,6 +215,16 @@ def augment_json_with_paddle(
 
             if not img_path.exists():
                 paddle_img.paddleocr_result = {"error": f"Image not found at {img_path}"}
+                augmented_images.append(paddle_img)
+                continue
+
+            if not paddle_img.has_text or not paddle_img.parsedDialogueLines:
+                paddle_img.paddleocr_result = {
+                    "rec_texts": [],
+                    "rec_polys": [],
+                    "rec_boxes": [],
+                }
+                augmented_images.append(paddle_img)
                 continue
 
             print(f"🌿 Validation succeeded for img path, starting img processing: {str(img_path.stem)}")
@@ -270,7 +284,7 @@ def augment_json_with_paddle(
                     "rec_boxes": rec_boxes
                 }
 
-                augmented_images.append(paddle_img)
+            augmented_images.append(paddle_img)
 
         out_path = Path(ocr_json_path_).with_name(
             Path(ocr_json_path_).stem + "_with_paddle.json"
