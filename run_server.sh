@@ -6,6 +6,7 @@ ENV_NAME="paddle"
 # Activate Conda
 source ~/miniconda3/etc/profile.d/conda.sh
 conda activate "$ENV_NAME"
+python scripts/sync_contracts.py
 
 # Run the OCR server
 echo "🚀 Starting OCR FastAPI server..."
